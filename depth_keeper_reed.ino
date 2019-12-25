@@ -37,8 +37,8 @@ bool deskDebug=false;
 bool initWait=true;
 
 //this parmeter can be configured from SD
-bool prd2Min_On=true; // wait  2 minutes after being under water
-//bool prd2Min_On=false; // avoid waiting 2 minutes after being under water
+//bool prd2Min_On=true; // wait  2 minutes after being under water
+bool prd2Min_On=false; // avoid waiting 2 minutes after being under water
 
 
 #define pinRedLed 6
@@ -171,11 +171,13 @@ void setup() {
 
   if(calibrationNeeded()){
     workingMode=CALIBRATE_SPEED;
-    find_deepest_point();
+    //find_deepest_point();
   }
   if(isPrd2minCanceled()){
-    prd2Min_On=false;
-    saveLineToCsv("2 min cancelled");
+//    prd2Min_On=false;
+//    saveLineToCsv("2 min cancelled");
+    prd2Min_On=true;
+    saveLineToCsv("2 min wait is on");
   }
 }
 
@@ -255,6 +257,7 @@ void startFresh(){
   stuckStartFresh();
 }
 void loop() {
+  calibration_collect_hist();
   int nextPhase=currentPhase;
   switch(currentPhase){
     case WAIT_TO_WATER:
@@ -303,7 +306,8 @@ void loop() {
                         doneCalibration=true;
                         workingMode=CHANGING_DEPTH;
                         nextPhase=WORK;
-                        startFirstHopAfterCalibration();
+                        startFirstHop();
+//                        startFirstHopAfterCalibration();
                       }
                       break;
     case WORK:

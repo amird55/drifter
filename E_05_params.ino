@@ -11,30 +11,18 @@ typedef struct courseItemsParams{
 
 courseItemsParams courseParams[MAX_SECTIONS];
 
-bool calibrationNeeded(){
-  bool ret=false;
-  for (int k=0;k<MAX_SECTIONS;k++){
-      Serial.print("calibrationNeeded:courseParams[");
-      Serial.print(k,DEC);
-      Serial.print("].pType=");
-      Serial.println(courseParams[k].pType);
-    if((courseParams[k].pType=='c')||(courseParams[k].pType=='C')){
-      ret=true;
-      break;
-    }
-  }
-  return  ret;
-}
 bool isPrd2minCanceled(){
   bool ret=false;
+  int N_line_num=-1;
   String str="isPrd2minCanceled:: started";
   saveLineToCsv(str);
   for (int k=0;k<MAX_SECTIONS;k++){
-      Serial.print("calibrationNeeded:courseParams[");
-      Serial.print(k,DEC);
-      Serial.print("].pType=");
-      Serial.println(courseParams[k].pType);
+    Serial.print("calibrationNeeded:courseParams[");
+    Serial.print(k,DEC);
+    Serial.print("].pType=");
+    Serial.println(courseParams[k].pType);
     if((courseParams[k].pType=='n')||(courseParams[k].pType=='N')){
+      N_line_num=k;
       str="isPrd2minCanceled:: found ";
       str.concat(String(courseParams[k].pType));
       str.concat("  on line ");
@@ -43,6 +31,12 @@ bool isPrd2minCanceled(){
       ret=true;
       break;
     }
+  }
+  if(N_line_num >=0){ // remove line and shrink
+    for(int k=N_line_num;k<MAX_SECTIONS-1;k++){
+      courseParams[k]=courseParams[k+1];
+    }
+    courseParams[MAX_SECTIONS-1].pType='\0';
   }
   return  ret;
 }

@@ -14,29 +14,38 @@ bool scaleSpeed(){
   Serial.print(currentDepth,DEC);
   Serial.println(" ");
 
-    if(currentDepth < highest_val){ // too high
-      finish_speed_cal();
-      isCalibrating=false;
-      //shut engine off
-      ng_stop();
-      ret=true;
-    }
-    else if(currentDepth < deepest_val){ 
-      // we are in the range
-      // continue with engine on
+    if(calibration_stuck_check()){
+      if(isCalibrating){
+        // stuck on way up  ==> finish calibrting
+        set_finish_cal_time('s');
+        cal_just_finished();
+        ret=true;
+      }
+      else {
+        //stuck on way down ==> start calibrating
+        cal_start_engine();
+      }
+    } 
+    else if(cal_wait_4_full_speed){
+          cal_accellaration();
+          cal_start_engine();      
     }
     else {
-        // in here, depth is more than lower limit
-        if(!isCalibrating){
-          if(ng_curr_speed == esc_max_microsec){ // wait 4 full speed
-            isCalibrating=true;
-            // save time
-            start_calibration_section();
-          }
-        }
-  //set thruster to start working
-        ng_fullSpeedUP();
-    }
+      if(currentDepth < highest_val){ // too high
+        set_finish_cal_time('c');
+        cal_just_finished();
+        ret=true;
+      }
+      else if(currentDepth < deepest_val){ 
+        // we are in the range
+        // continue with engine on
+      }
+      else {
+          // in here, depth is more than lower limit
+          cal_accellaration();
+          cal_start_engine();
+      }
+  }
   return ret;
 }
 

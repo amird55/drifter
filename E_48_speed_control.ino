@@ -6,6 +6,44 @@ float max_speed_m2sec;
 float highest_val=0.5;
 float deepest_val=0;
 bool isCalibrating=false;
+
+#define CAL_STUCK_LEN 15 // 5sec * 3 samples at sec
+float calibration_depth_history[CAL_STUCK_LEN];
+int cal_hist_index=0;
+bool cal_hist_enough_data=false;
+long cal_start_stuck_time_sec=0;
+long cal_stuck_time_diff;
+
+bool calibrationNeeded(){
+  bool ret=false;
+  int cal_line_num=-1;
+  for (int k=0;k<MAX_SECTIONS;k++){
+    Serial.print("calibrationNeeded:courseParams[");
+    Serial.print(k,DEC);
+    Serial.print("].pType=");
+    Serial.println(courseParams[k].pType);
+    if((courseParams[k].pType=='c')||(courseParams[k].pType=='C')){
+      cal_line_num=k;
+      if(courseParams[k].pValH > courseParams[k].pValL){
+        deepest_val=courseParams[k].pValH;
+        highest_val=courseParams[k].pValL;
+      } else {
+        deepest_val=courseParams[k].pValL;
+        highest_val=courseParams[k].pValH;
+      }
+      ret=true;
+      break;
+    }
+  }
+  if(cal_line_num >=0){ // remove line and shrink
+    for(int k=cal_line_num;k<MAX_SECTIONS-1;k++){
+      courseParams[k]=courseParams[k+1];
+    }
+    courseParams[MAX_SECTIONS-1].pType='\0';
+  }
+  return  ret;
+}
+
 // find deepest point at file
 void find_deepest_point(){
   for (int k=0;k<MAX_SECTIONS;k++){
@@ -33,14 +71,48 @@ void find_deepest_point(){
   }
 }
 
+bool cal_wait_4_full_speed=false;
+void cal_accellaration(){
+    if(!isCalibrating){
+      if(ng_curr_speed == esc_max_microsec){ // wait 4 full speed
+        isCalibrating=true;
+        cal_wait_4_full_speed=false;
+        // save time
+        start_calibration_section();
+      }
+    }
+}
+void cal_start_engine(){
+  if(!isCalibrating){
+    ng_fullSpeedUP();
+    cal_wait_4_full_speed=true;
+  }
+}
+void cal_just_finished(){
+      //set calibrating data
+      finish_speed_cal();
+      //-------
+      isCalibrating=false;
+      cal_wait_4_full_speed=false;
+      //shut engine off
+      ng_stop();
+}
 void start_calibration_section(){
   // save time
   speed_cal_start_time=floor(millis()/1000);
 }
-void finish_speed_cal(){
+void set_finish_cal_time(char timeType){
   // save time of finish
-  speed_cal_finish_time=floor(millis()/1000);
-
+  switch(timeType){
+    case 'c': // for current
+            speed_cal_finish_time=floor(millis()/1000);
+            break;
+    case 's': // by stuck
+            speed_cal_finish_time=floor(millis()/1000) - cal_stuck_time_diff;
+            break;
+  }
+}
+void finish_speed_cal(){
   // calculate co-eficient for speed
   max_speed_m2sec=(deepest_val-highest_val)/(speed_cal_finish_time-speed_cal_start_time);
   
@@ -81,4 +153,57 @@ void speed_set(float m2sec){
   str.concat("  thruster_calibrated_speed=");
   str.concat(String(thruster_calibrated_speed));
   saveLineToCsv(str);
+}
+
+
+void calibration_collect_hist(){
+  if((!cal_hist_enough_data) && (cal_hist_index==0)){
+    cal_start_stuck_time_sec=floor(millis()/1000);
+  }
+  calibration_depth_history[cal_hist_index]=currentDepth;
+  cal_hist_index++;
+  if(cal_hist_index>=CAL_STUCK_LEN){
+    cal_hist_enough_data=true;
+    cal_hist_index=0;
+    cal_stuck_time_diff=floor(millis()/1000) - cal_start_stuck_time_sec;
+  }
+}
+bool calibration_stuck_check(){
+  bool ret=false;
+  float min_depth;
+  float max_depth;
+  float cal_depth_var=0.3;
+  if(cal_hist_enough_data){
+    min_depth=calibration_depth_history[0];
+    max_depth=calibration_depth_history[0];
+    for(int kk=1;kk<CAL_STUCK_LEN;kk++){
+      if(min_depth > calibration_depth_history[kk] ){
+        min_depth=calibration_depth_history[kk];
+      }
+      if(max_depth < calibration_depth_history[kk] ){
+        max_depth=calibration_depth_history[kk];
+      }
+    }
+
+    if(abs(min_depth-max_depth)<=cal_depth_var){
+      ret=true;
+    }
+    String str="calibration_stuck_check:: ";
+    str.concat("  min_depth=");
+    str.concat(String(min_depth));
+    str.concat("  max_depth=");
+    str.concat(String(max_depth));
+    str.concat("  cal_depth_var=");
+    str.concat(String(cal_depth_var));
+    str.concat("  result=");
+    if(ret){
+      str.concat("true");
+    }else {
+      str.concat("false");
+    }
+    saveLineToCsv(str);
+  
+  
+  }
+  return ret;
 }
