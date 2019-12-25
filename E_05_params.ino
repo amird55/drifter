@@ -17,7 +17,7 @@ bool isPrd2minCanceled(){
   String str="isPrd2minCanceled:: started";
   saveLineToCsv(str);
   for (int k=0;k<MAX_SECTIONS;k++){
-    Serial.print("calibrationNeeded:courseParams[");
+    Serial.print("isPrd2minCanceled:courseParams[");
     Serial.print(k,DEC);
     Serial.print("].pType=");
     Serial.println(courseParams[k].pType);
@@ -40,6 +40,38 @@ bool isPrd2minCanceled(){
   }
   return  ret;
 }
+
+int getMinDepthForThruster(){
+  int ret=0;
+  int T_line_num=-1;
+  String str="getMinDepthForThruster:: started";
+  saveLineToCsv(str);
+  for (int k=0;k<MAX_SECTIONS;k++){
+    Serial.print("getMinDepthForThruster:courseParams[");
+    Serial.print(k,DEC);
+    Serial.print("].pType=");
+    Serial.println(courseParams[k].pType);
+    if((courseParams[k].pType=='p')||(courseParams[k].pType=='P')){
+      T_line_num=k;
+      str="getMinDepthForThruster:: found ";
+      str.concat(String(courseParams[k].pType));
+      str.concat("  on line ");
+      str.concat(String(k));
+      saveLineToCsv(str);
+      ret=courseParams[k].pValH;
+      break;
+    }
+  }
+  if(T_line_num >=0){ // remove line and shrink
+    for(int k=T_line_num;k<MAX_SECTIONS-1;k++){
+      courseParams[k]=courseParams[k+1];
+    }
+    courseParams[MAX_SECTIONS-1].pType='\0';
+  }
+  return  ret;
+}
+
+
 
 float dst_upperLimit;
 float dst_lowerLimit;

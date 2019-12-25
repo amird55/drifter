@@ -74,8 +74,7 @@ int log_cntr;
 float currentDepth; // used for panic floating
 float currentTemp;
 
-
-
+float minDepthForThrusterWorking=0;
 
 short workingMode;   
 short waterType; 
@@ -179,6 +178,8 @@ void setup() {
     prd2Min_On=true;
     saveLineToCsv("2 min wait is on");
   }
+  
+  minDepthForThrusterWorking=getMinDepthForThruster();
 }
 
 

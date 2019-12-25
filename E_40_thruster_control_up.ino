@@ -195,7 +195,7 @@ void setNewSpeed(int spd){
   }
 }
 void ng_on(int spd){
-  if(currentDepth < 0){
+  if(currentDepth < minDepthForThrusterWorking){
       light_Red();
       Serial.println("ng_on: ABOVE WATER -- stopping");
       saveLineToCsv("ng_on: ABOVE WATER -- stopping");

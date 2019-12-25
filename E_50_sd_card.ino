@@ -188,8 +188,9 @@ void setParam(){
  * type , low val , high val , duration, seconds to climb
  * -------------------------------------------------------
  * type = 
- * N - no 2 minutes wait after in water
- * C - need to calibrate speed
+ * N - add 2 minutes wait after in water
+ * C,startDepth,endDepth - need to calibrate speed
+ * P,depth - setting minimal depth for thruster to work
  * S - stuck params (
  *                    minimal depth [m] to start checking for stuck (default=1.0) ,
  *                    depth variation during stuck [m]  (default=0.5) , 
