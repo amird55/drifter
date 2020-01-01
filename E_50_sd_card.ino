@@ -227,8 +227,12 @@ void readFromLogFile(){
                   break;
         case '\n' :
                   if(notRemark){
-                    setParam();
-                    enterNewLineData();
+                    if((letterIndex==0)&&(paramIndex==0)){
+                      //no data in this line
+                    } else {
+                      setParam();
+                      enterNewLineData();
+                    }
                   }
                   notRemark=true;
                   break;
