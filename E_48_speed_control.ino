@@ -100,6 +100,9 @@ void cal_just_finished(){
 void start_calibration_section(){
   // save time
   speed_cal_start_time=floor(millis()/1000);
+  deepest_val=currentDepth; //setting the depth calibration started
+  Serial.print("-+-+-+-+-+-+-+-+----- start_calibration_section    deepest_val=");
+  Serial.print(deepest_val,DEC);
 }
 void set_finish_cal_time(char timeType){
   // save time of finish
@@ -111,12 +114,15 @@ void set_finish_cal_time(char timeType){
             speed_cal_finish_time=floor(millis()/1000) - cal_stuck_time_diff;
             break;
   }
+  highest_val=currentDepth; //setting the depth calibration ended
+  Serial.print("-+-+-+-+-+-+-+-+----- set_finish_cal_time    highest_val=");
+  Serial.println(highest_val,DEC);
 }
 void finish_speed_cal(){
   // calculate co-eficient for speed
-  max_speed_m2sec=(deepest_val-highest_val)/(speed_cal_finish_time-speed_cal_start_time);
-  
   int cal_time=speed_cal_finish_time-speed_cal_start_time;
+  max_speed_m2sec=(deepest_val-highest_val)/cal_time;
+  
   String str="finish_speed_cal:: deepest_val=";
   str.concat(String(deepest_val));
   str.concat("  highest_val=");
@@ -126,6 +132,7 @@ void finish_speed_cal(){
   str.concat("  max_speed_m2sec=");
   str.concat(String(max_speed_m2sec));
   saveLineToCsv(str);
+  Serial.println(str);
   
 }
 //---------------------
@@ -163,9 +170,11 @@ void calibration_collect_hist(){
   calibration_depth_history[cal_hist_index]=currentDepth;
   cal_hist_index++;
   if(cal_hist_index>=CAL_STUCK_LEN){
+    if(!cal_hist_enough_data){
+      cal_stuck_time_diff=floor(millis()/1000) - cal_start_stuck_time_sec;
+    }
     cal_hist_enough_data=true;
     cal_hist_index=0;
-    cal_stuck_time_diff=floor(millis()/1000) - cal_start_stuck_time_sec;
   }
 }
 bool calibration_stuck_check(){

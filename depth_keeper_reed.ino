@@ -31,10 +31,10 @@
  */
 #include <stdlib.h>
 
-bool deskDebug=true;
-bool initWait=false;
-//bool deskDebug=false;
-//bool initWait=true;
+//bool deskDebug=true;
+//bool initWait=false;
+bool deskDebug=false;
+bool initWait=true;
 
 //this parmeter can be configured from SD
 //bool prd2Min_On=true; // wait  2 minutes after being under water
@@ -204,6 +204,8 @@ bool wait_for_water(){
   getSensorValues();
   saveToLogFile();
   if(currentDepth < depthToStart){
+    Serial.print("**** wait_for_water  still waiting currentDepth=");
+    Serial.println(currentDepth,DEC);
     lightTheLed(CLR_YELLOW);
     delay(1000);
     light_Off();

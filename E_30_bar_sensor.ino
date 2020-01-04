@@ -45,22 +45,28 @@ void init_bar(){
  */
 unsigned long currentSeconds;
 void getSensorValues(){
+  currentSeconds=floor(millis()/1000);
   if(deskDebug){
-    float dpdiv=0.5;
+    float dpdiv=0.2;
     if(ng_curr_speed < 1500){
-      dpdiv=0.7*(ng_curr_speed-1500)/1500;
+      dpdiv=-0.05;//0.7*(ng_curr_speed-1500)/1500;
     }
-    if((currentSeconds>30)&&(currentSeconds<90)){
-      dpdiv=dpdiv/10;
-    }
+//    if((currentSeconds>30)&&(currentSeconds<90)){
+//      dpdiv=dpdiv/10;
+//    }
     currentDepth+=dpdiv;
+    if((currentSeconds>10)&&(currentDepth < 0.4)){
+      currentDepth=0.4;
+    }
+//    else if(currentDepth >1.6){ // for checking stuck before calibration
+//      currentDepth=1.6;
+//    }
     currentTemp=currentDepth;
   } else {
     sensor.read();
     currentDepth=sensor.depth();
     currentTemp=sensor.temperature();
   }
-  currentSeconds=floor(millis()/1000);
   
 //    Serial.print("-------------getSensorValues:   currentSeconds=");
 //    Serial.print(currentSeconds);
