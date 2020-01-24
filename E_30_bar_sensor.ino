@@ -45,7 +45,8 @@ void init_bar(){
  */
 unsigned long currentSeconds;
 void getSensorValues(){
-  currentSeconds=floor(millis()/1000);
+  unsigned long tmp=floor(millis()/1000);
+  
   if(deskDebug){
     float dpdiv=0.2;
     if(ng_curr_speed < 1500){
@@ -62,10 +63,27 @@ void getSensorValues(){
 //      currentDepth=1.6;
 //    }
     currentTemp=currentDepth;
-  } else {
-    sensor.read();
-    currentDepth=sensor.depth();
-    currentTemp=sensor.temperature();
+  }
+  else {
+    //if(tmp > currentSeconds){ //getting samples only once a second
+      sensor.read();
+      delay(3);
+      float d=sensor.depth();
+      if(d < 100){
+        currentDepth=d;
+        currentTemp=sensor.temperature();
+      }
+    //}
+  }
+  currentSeconds=tmp;
+  
+  if(currentDepth < minDepthForThrusterWorking){
+      light_Red();
+      Serial.println("getSensorValues: ABOVE WATER -- stopping");
+      saveLineToCsv("getSensorValues: ABOVE WATER -- stopping");
+      stopNow();
+      delay(15);    
+      light_Off();
   }
   
 //    Serial.print("-------------getSensorValues:   currentSeconds=");
@@ -78,19 +96,19 @@ void getSensorValues(){
 /** Depth returned in meters (valid for operation in incompressible
  *  liquids only. Uses density that is set for fresh or seawater.
  */
- float getWaterDepth(){
-  float ret=0;
-  sensor.read();
-  ret=sensor.depth();
-  currentDepth=sensor.depth();
-  return ret;
-}
-// Temperature returned in deg C.
- float getWaterTemperature(){
-  float ret=0;
-  sensor.read();
-  ret=sensor.temperature();
-  currentDepth=sensor.depth();
-  return ret;
-}
+// float getWaterDepth(){
+//  float ret=0;
+//  sensor.read();
+//  ret=sensor.depth();
+//  currentDepth=sensor.depth();
+//  return ret;
+//}
+//// Temperature returned in deg C.
+// float getWaterTemperature(){
+//  float ret=0;
+//  sensor.read();
+//  ret=sensor.temperature();
+//  currentDepth=sensor.depth();
+//  return ret;
+//}
 /*----------------------------------------------------------------------*/

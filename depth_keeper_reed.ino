@@ -149,6 +149,17 @@ void setup() {
   sd_setup();
   readFromLogFile();
   delay(1000);
+
+  if(!verifySetupFile()){
+    Serial.println(" verifySetupFile FAILED ");
+    while(true){
+      light_Red();
+      delay(400);
+      light_Off();
+      delay(200);
+      
+    }
+  }
   if(!deskDebug){
     init_bar();
   }
@@ -195,8 +206,8 @@ bool hasRest=true;
 int workSpeed=1100;
 int thruster_speed=workSpeed; //start with power
 
-  int depthToStart=2;
-  int safeguard=40; // how many good reading before start
+  float depthToStart=1.5;
+  int safeguard=20; // how many good reading before start
   int safeguard_cnt=0;
 bool wait_for_water(){
   bool ret=true;

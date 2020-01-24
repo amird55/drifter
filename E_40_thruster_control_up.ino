@@ -210,5 +210,10 @@ void ng_on(int spd){
       Serial.println(" ");
   }
 }
+void stopNow(){
+  myESC.speed(esc_zero_microsec);
+  saveLineToCsv("stopNow - stopping the thruster");
+
+}
 
  

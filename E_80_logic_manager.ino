@@ -207,6 +207,13 @@ bool getNextHop(){
     Serial.print("    courseParams[lineIndex].pDurationMin=");
     Serial.print(courseParams[lineIndex].pDurationMin,DEC);
     Serial.println(" ");
+  String str="getNextHop:: pType=";
+  str.concat(String(courseParams[lineIndex].pType));
+  str.concat("  pValH=");
+  str.concat(String(courseParams[lineIndex].pValH));
+  str.concat("  pValL=");
+  str.concat(String(courseParams[lineIndex].pValL));
+  saveLineToCsv(str);
     switch(courseParams[lineIndex].pType){
       case 'd':
       case 'D': setDepthRange(courseParams[lineIndex].pValH,courseParams[lineIndex].pValL);
@@ -220,6 +227,10 @@ bool getNextHop(){
                     Serial.print(m2sec,DEC);
                     speed_set(m2sec);
                   }
+                  else {
+                    Serial.print("    no velocity - setting to max speed");
+                    speed_set(esc_max_microsec);
+                  }
                 }
                 Serial.println(" ");
                 Serial.println(" ******************************************************************");
@@ -230,6 +241,10 @@ bool getNextHop(){
                   if(courseParams[lineIndex].pVelocity > 0){
                     m2sec=abs(courseParams[lineIndex].pValH-courseParams[lineIndex].pValL)/courseParams[lineIndex].pVelocity;
                     speed_set(m2sec);
+                  }
+                  else {
+                    Serial.print("    no velocity - setting to max speed");
+                    speed_set(esc_max_microsec);
                   }
                 }
                 break;

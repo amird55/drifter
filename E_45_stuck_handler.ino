@@ -87,7 +87,7 @@ bool check_if_stuck(){
     Serial.print("    stuck_check_min_depth_meter=");
     Serial.print(stuck_check_min_depth_meter,DEC);
     Serial.println(" ");
-    if(currentDepth < stuck_check_min_depth_meter){
+    if((currentDepth < minDepthForThrusterWorking)||(currentDepth < stuck_check_min_depth_meter)){
       am_i_stuck=false;
     }
     else {

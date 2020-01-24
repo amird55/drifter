@@ -11,6 +11,86 @@ typedef struct courseItemsParams{
 
 courseItemsParams courseParams[MAX_SECTIONS];
 
+bool verifySetupFile(){
+  bool ret=true;
+  int goodLine=0;
+  bool fileIsFinished=false;
+  String str="verifySetupFile:: started";
+  saveLineToCsv(str);
+  for (int k=0;k<MAX_SECTIONS;k++){
+    Serial.print("verifySetupFile:courseParams[");
+    Serial.print(k,DEC);
+    Serial.print("].pType=");
+    Serial.print(courseParams[k].pType);
+    Serial.print("  goodLine=");
+    Serial.print(goodLine,DEC);
+    Serial.print("  fileIsFinished=");
+    Serial.println(fileIsFinished,DEC);
+    if((courseParams[k].pType=='\0')||(courseParams[k].pType==' ')){
+      //empty line
+      if(!fileIsFinished){
+        fileIsFinished=true;
+        if(goodLine == 0){ //no data given yet
+          ret=false;
+          str="verifySetupFile failed on line ";
+          str.concat(k);
+          str.concat("- empty line at start");
+          saveLineToCsv(str);
+          Serial.println(str);
+        }
+      }
+    }
+    else {
+      
+      if(fileIsFinished){
+        //good line after an empty one
+        ret=false;
+        str="verifySetupFile failed on line ";
+        str.concat(k);
+        str.concat("- good line after an empty one");
+        saveLineToCsv(str);
+        Serial.println(str);
+      }
+      else {
+        switch(courseParams[k].pType){
+          case 'd':
+          case 'D':
+          case 't':
+          case 'T': 
+                    //nothing to check her, every parameter is ok
+                    goodLine++;
+//                    if((courseParams[k].pVelocity   courseParams[k].pValH-courseParams[k].pValL
+                    break;
+          case 'f':
+          case 'F':
+          case 'h':
+          case 'H':
+                    //check for not too many params 
+                    if(courseParams[k].pValL < 500){
+                      //too short thruster time
+                      ret=false;
+                      str="verifySetupFile failed on line ";
+                      str.concat(k);
+                      str.concat("- too short thruster time");
+                      saveLineToCsv(str);
+                      Serial.println(str);
+                    }
+                    else {
+                      goodLine++;
+                    }
+                    break;
+          case 's':
+          case 'S':
+          case 'e':
+          case 'E':  
+                    //nothing to check here
+                    break;
+        }
+      }
+    }
+  }
+  return  ret;
+}
 bool isPrd2minCanceled(){
   bool ret=false;
   int N_line_num=-1;
