@@ -197,6 +197,7 @@ void setParam(){
  *                    minutes to be considered as stuck  (default=1) 
  * T    , low val , high val , duration, seconds to climb - by temp
  * D    , low val , high val , duration, seconds to climb - by depth
+ * G    ,depth to start engine,millisec of working thruster,duration of section (minutes),thruster speed (1100-1500)
  * F    ,depth to start engine,millisec of working thruster - full speed by time period
  * H    ,depth to start engine,millisec of working thruster - half speed for time period
  * 

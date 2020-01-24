@@ -148,6 +148,17 @@ void boostHalfOnDepth(){
     ng_HalfPower();
   }
 }
+void boostSpdOnDepth(){
+  //check for working time, and stop if needed
+  if((isBoosting)&&(millis()-boostStartTime > courseParams[lineIndex].pValL)){
+    isBoosting=false;
+    ng_stop();
+  }
+  if(currentDepth > dst_lowerLimit){
+    isBoosting=true;
+    ng_wantedSpeedUP();
+  }
+}
 bool keepCurrentDepth(){
   bool ret=true;
   ret=checkForNextHop();
@@ -163,6 +174,8 @@ bool keepCurrentDepth(){
       case 'F':boostFullOnDepth();break;
       case 'h':
       case 'H':boostHalfOnDepth();break;
+      case 'g':
+      case 'G':boostSpdOnDepth();break;
     }
   }
   return ret;
@@ -253,6 +266,11 @@ bool getNextHop(){
       case 'h':
       case 'H':
               dst_lowerLimit=courseParams[lineIndex].pValH;
+              break;
+      case 'g':
+      case 'G':
+              dst_lowerLimit=courseParams[lineIndex].pValH;
+              thruster_calibrated_speed=courseParams[lineIndex].pVelocity;
               break;
       case 's':
       case 'S':

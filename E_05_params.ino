@@ -79,6 +79,31 @@ bool verifySetupFile(){
                       goodLine++;
                     }
                     break;
+          case 'g':
+          case 'G':
+                    //check for not too many params 
+                    if(courseParams[k].pVelocity < 1100){
+                      //too low thruster speed
+                      ret=false;
+                      str="verifySetupFile failed on line ";
+                      str.concat(k);
+                      str.concat("- too low thruster speed");
+                      saveLineToCsv(str);
+                      Serial.println(str);
+                    }
+                    else if(courseParams[k].pVelocity > 1500){
+                      //too high thruster speed
+                      ret=false;
+                      str="verifySetupFile failed on line ";
+                      str.concat(k);
+                      str.concat("- too high thruster speed");
+                      saveLineToCsv(str);
+                      Serial.println(str);
+                    }
+                    else {
+                      goodLine++;
+                    }
+                    break;
           case 's':
           case 'S':
           case 'e':

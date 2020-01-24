@@ -304,7 +304,7 @@ void loop() {
                       nextPhase=(wait_1_min())?WAIT_2_MIN:START_TO_WORK;
                       break;
     case START_TO_WORK:
-      Serial.println("START_TO_WORK");
+//      Serial.println("START_TO_WORK");
                       nextPhase=WORK;
                       if(workingMode==CHANGING_DEPTH){
                         startFirstHop();
@@ -314,7 +314,7 @@ void loop() {
                       }
                       break;
     case CALIBRATE:
-      Serial.println("CALIBRATE");
+//      Serial.println("CALIBRATE");
                       nextPhase=CALIBRATE;
                       if(calibratePhase()){
                         doneCalibration=true;
@@ -325,7 +325,7 @@ void loop() {
                       }
                       break;
     case WORK:
-      Serial.println("WORK");
+//      Serial.println("WORK");
                       nextPhase=(workPhase())?WORK:END_OF_JOB;
                       break;
     case END_OF_JOB:
