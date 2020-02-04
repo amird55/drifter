@@ -160,7 +160,7 @@ void ng_stop(){
   }
 }
 void ng_emergancyMoveUP(){
-    ng_wanted_speed=ESC_HALF_POWER;
+    ng_wanted_speed=ESC_FULL_POWER;
     ng_curr_state=NG_GET_STARTED;
 }
 void ng_wantedSpeedUP(){

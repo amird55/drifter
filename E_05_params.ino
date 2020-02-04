@@ -182,7 +182,7 @@ float dst_upperLimit;
 float dst_lowerLimit;
 float midRange;
 
-float maximum_allowed_depth = 80; // after that device will be broken
+float maximum_allowed_depth = 100; // after that device will be broken
  
 void setDepthRange(float wantedDepth_H,float wantedDepth_L){
   //lower limit is bigger value
